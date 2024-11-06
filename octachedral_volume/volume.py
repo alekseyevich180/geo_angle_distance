@@ -1,0 +1,38 @@
+#import matplotlib.pyplot as plt
+#import pandas as pd
+#import GPy
+#from GPy import kern as gp_kern
+import numpy as np
+#from scipy.stats import norm
+#from sklearn.metrics import r2_score
+import time
+#import numpy as np
+
+
+def tetrahedron_volume(v1, v2, v3, v4):
+    # 计算四面体的体积，使用混合积公式
+    return abs(np.dot(v1 - v4, np.cross(v2 - v4, v3 - v4))) / 6
+
+def octahedron_volume(vertices):
+    # 将八面体分为两个四面体
+    v1, v2, v3, v4, v5, v6 = vertices
+    # 假设我们把八面体分为四面体 (v1, v2, v3, v4) 和 (v1, v2, v3, v5)
+    volume1 = tetrahedron_volume(v1, v2, v3, v4)
+    volume2 = tetrahedron_volume(v1, v2, v3, v5)
+    
+    return volume1 + volume2
+
+# 输入八面体的顶点坐标
+vertices = np.array([
+    [0, 0, 0],    # v1
+    [1, 0, 0],    # v2
+    [0, 1, 0],    # v3
+    [0, 0, 1],    # v4
+    [1, 1, 0],    # v5
+    [0, 1, 1]     # v6
+])
+
+# 计算体积
+volume = octahedron_volume(vertices)
+
+print(f"The volume of the octahedron is {volume:.3f}")
