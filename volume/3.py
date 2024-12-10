@@ -31,9 +31,6 @@ def parse_poscar(poscar_path):
 
     return atoms_coordinates, lines, atom_types, atom_counts, coordinate_start_line
 
-# -----------------------
-# 主程序
-# -----------------------
 folder_path = "."
 input_file = os.path.join(folder_path, "IrO6.vasp")
 atoms_coordinates, lines, atom_types, atom_counts, coord_start = parse_poscar(input_file)
