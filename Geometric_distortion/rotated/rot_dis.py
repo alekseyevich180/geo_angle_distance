@@ -106,7 +106,7 @@ if __name__ == "__main__":
     final_distance = 0.10623807321294945  # 目标缩短后的O-Ir距离
 
     # 对0到60度，每度一次旋转，并输出文件
-    for angle in range(0, 61, 10):
+    for angle in range(0, 61, 2):
         theta = math.radians(angle)
         R = rotation_matrix(normal, theta)
         OM_rotated = R.dot(OM)
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         lines[target_line_index] = new_line
 
     # 输出文件名带角度标记
-        output_filename = f"IrO6_modified_{angle}deg.vasp"
+        output_filename = f"IrO6_{angle}.vasp"
         with open(output_filename, "w") as f:
             f.writelines(lines)
 
