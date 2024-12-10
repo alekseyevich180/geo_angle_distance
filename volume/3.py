@@ -90,7 +90,7 @@ for simplex in hull.simplices:
 R_in_sphere = min(distances_to_faces)
 
 # 我们将金属原子在内切球中随机分布
-num_structures = 60
+num_structures = 600
 output_dir = "./structures"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
