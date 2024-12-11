@@ -103,10 +103,10 @@ if __name__ == "__main__":
     o_start_line = coordinate_start_line + ir_count
     # 第5个O对应行号：o_start_line + 4（下标从0开始）
     target_line_index = o_start_line + 4
-    final_distance = 0.10623807321294945  # 目标缩短后的O-Ir距离
+    final_distance = 0.10022821737536475  # 目标缩短后的O-Ir距离
 
     # 对0到60度，每度一次旋转，并输出文件
-    for angle in range(0, 61, 2):
+    for angle in range(0, 61, 1):
         theta = math.radians(angle)
         R = rotation_matrix(normal, theta)
         OM_rotated = R.dot(OM)

@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # 第6个O对应行号：o_start_line + 5（下标从0开始）
     target_line_index = o_start_line + 5
 
-    final_distance = 0.10623807321294945  # 目标缩短后的O-Ir距离
+    final_distance = 0.10022821737536475  # 目标缩短后的O-Ir距离
 
     # 对0到60度，每度一次旋转，并输出文件
     for angle in range(0, 61):
