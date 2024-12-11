@@ -106,32 +106,52 @@ if __name__ == "__main__":
     final_distance = 0.10022821737536475 * 1.88331 / 1.84739 # 根据实际情况修改该值
 
     # 对0到60度，每隔20度一次旋转，并输出文件
-    for angle in range(0, 61, 2):
-        theta = math.radians(angle)
-        R = rotation_matrix(normal, theta)
-        OM_rotated = R.dot(OM)
-        O_target_new = Ti + OM_rotated
+    # 定义初始向左旋转的角度
+left_rotation_angle = 15  # 向左旋转 15 度
+left_theta = math.radians(left_rotation_angle)
 
-        # 缩放使旋转后O-Ti距离为目标距离
-        current_distance = np.linalg.norm(O_target_new - Ti)
-        scale_factor = final_distance / current_distance
-        O_target_final = Ti + OM_rotated * scale_factor
+# 首先执行左旋转（绕 normal 旋转）
+R_left = rotation_matrix(normal, left_theta)
+OM_left_rotated = R_left.dot(OM)  # 左旋后的 OM 向量
+O_target_left_rotated = Ti + OM_left_rotated
 
-        # 修改目标行坐标至缩短后的坐标
-        line_split = lines[target_line_index].split()
-        line_split[0] = f"{O_target_final[0]:.16f}"
-        line_split[1] = f"{O_target_final[1]:.16f}"
-        line_split[2] = f"{O_target_final[2]:.16f}"
-        new_line = " ".join(line_split) + "\n"
-        original_line = lines[target_line_index]
-        lines[target_line_index] = new_line
+# 缩放以保持与 Ti 的目标距离
+current_distance_left = np.linalg.norm(O_target_left_rotated - Ti)
+scale_factor_left = final_distance / current_distance_left
+O_target_left_final = Ti + OM_left_rotated * scale_factor_left
 
-        # 输出文件名带角度标记
-        output_filename = f"TiO6_{angle}.vasp"
-        with open(output_filename, "w") as f:
-            f.writelines(lines)
+# 更新旋转后的 OM（作为后续旋转的起点）
+OM = O_target_left_final - Ti
 
-        # 恢复原始行以便下个循环使用:
-        lines[target_line_index] = original_line
+# 第二次旋转：使用新的方向轴或逻辑
+for angle in range(0, 61, 20):
+    theta = math.radians(angle)
+    # 定义新的旋转轴：可以使用 Ti 到某个点的方向
+    new_axis = normal  # 可根据实际需要替换为其他轴
+    R = rotation_matrix(new_axis, theta)
+    OM_rotated = R.dot(OM)
+    O_target_new = Ti + OM_rotated
 
-    print("已生成0-60度的旋转并缩短距离后的TiO6坐标文件。")
+    # 缩放使旋转后 O-Ti 距离为目标距离
+    current_distance = np.linalg.norm(O_target_new - Ti)
+    scale_factor = final_distance / current_distance
+    O_target_final = Ti + OM_rotated * scale_factor
+
+    # 修改目标行坐标至缩短后的坐标
+    line_split = lines[target_line_index].split()
+    line_split[0] = f"{O_target_final[0]:.16f}"
+    line_split[1] = f"{O_target_final[1]:.16f}"
+    line_split[2] = f"{O_target_final[2]:.16f}"
+    new_line = " ".join(line_split) + "\n"
+    original_line = lines[target_line_index]
+    lines[target_line_index] = new_line
+
+    # 输出文件名带角度标记
+    output_filename = f"TiO6_left_{left_rotation_angle}_and_{angle}.vasp"
+    with open(output_filename, "w") as f:
+        f.writelines(lines)
+
+    # 恢复原始行以便下个循环使用:
+    lines[target_line_index] = original_line
+
+print(f"已完成先向左旋转 {left_rotation_angle} 度，再旋转 0-60 度的操作，并生成文件。")
