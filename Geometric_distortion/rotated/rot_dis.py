@@ -90,7 +90,7 @@ if __name__ == "__main__":
     O_target = O_list[4]
 
     # 定义平面法向量
-    v1 = O2 - O1
+    v1 = O2 - 1.5*O1
     v2 = O3 - O1
     #alpha = 0.5
     #offset = alpha * v2
@@ -110,11 +110,7 @@ if __name__ == "__main__":
     final_distance = 0.10022821737536475  # 目标缩短后的O-Ir距离
 
     # 对0到60度，每度一次旋转，并输出文件
-<<<<<<< HEAD
-    for angle in range(0, 61, 30):
-=======
     for angle in range(0, 61, 1):
->>>>>>> 164f296ef5891f22b55f27307e4d4f2ae013677b
         theta = math.radians(angle)
         R = rotation_matrix(normal, theta)
         OM_rotated = R.dot(OM)
