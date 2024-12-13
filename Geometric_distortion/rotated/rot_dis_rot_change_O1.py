@@ -90,7 +90,7 @@ if __name__ == "__main__":
     O_target = O_list[4]
 
     # 定义平面法向量
-    v1 = O2 - O1
+    v1 = O2 - 1.5*O1
     v2 = O3 - O1
     #alpha = 0.5
     #offset = alpha * v2
