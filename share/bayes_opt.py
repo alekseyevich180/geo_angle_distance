@@ -22,37 +22,65 @@ class Share:
             log_file.write(message + "\n")
 
     def acquisition_lcb(self, mean, std, kappa):
+        """
+        计算下置信界（Lower Confidence Bound, LCB）。
+
+        参数：
+            - mean: float，预测的均值。
+            - std: float，预测的不确定性（标准差）。
+            - kappa: float，控制探索与利用平衡的权重参数。
+
+        返回：
+            - float，LCB值。
+        """
         return mean - kappa * std
 
     def acquisition_EI(self, mean, std, min_value, xi=0.001):
+        """
+        计算期望改进（Expected Improvement, EI）。
+
+        参数：
+            - mean: float，预测的均值。
+            - std: float，预测的不确定性（标准差）。
+            - min_value: float，当前最优值。
+            - xi: float，探索因子（默认值为0.001）。
+
+        返回：
+            - float，EI值。
+        """
         imp = min_value - mean - xi
         Z = imp / std
         ei = imp * norm.cdf(Z) + std * norm.pdf(Z)
         return ei
 
-    # log_message("Starting Python script")
-
     def main(self):
-        # print("w/ ene", self.df_with_energy, "\n", "w/o ene", self.df_without_energy)
+        """
+        主逻辑：根据当前数据生成新的候选任务。
+
+        如果已完成的任务数未达到初始化任务数 INIT_NUM，则从未完成任务中直接挑选候选。
+        如果已完成任务数满足初始化要求，则使用高斯过程回归模型预测，并通过采集函数挑选候选。
+        """
         if len(self.df_with_energy) < self.INIT_NUM:
+            # 初始化任务不足，从未完成任务中选择
             calc_dir = "/init"
 
             if len(self.df_with_energy) > self.INIT_NUM - self.num_candidates:
+                # 选择缺少的任务数量
                 shortage_num = self.INIT_NUM - len(self.df_with_energy)
                 head_ids = self.df_without_energy.head(shortage_num).index
-                self.log_message("Python script finished")
+                self.log_message("Python 脚本运行完成")
             else:
                 head_ids = self.df_without_energy.head(self.num_candidates).index
-                self.log_message("Python script finished")
+                self.log_message("Python 脚本运行完成")
 
             return list(head_ids), calc_dir
 
         else:
-            # 特徴量とターゲット変数の分割
+            # 特征数据（X）与目标变量（y）的分离
             X = self.df_with_energy.iloc[:, :-1]
             y = self.df_with_energy.iloc[:, -1:]
 
-            # ガウス過程回帰モデルの設定と訓練
+            # 配置并训练高斯过程回归模型
             num = X.shape[1]
             kernel = gp_kern.RBF(num) * gp_kern.Bias(num) + gp_kern.Linear(
                 num
@@ -62,7 +90,7 @@ class Share:
             )
             model.optimize()
 
-            # 各特徴量での獲得関数の計算
+            # 计算采集函数值
             min_value = min(self.df_with_energy["result"])
             means = []
             stds = []
@@ -82,7 +110,7 @@ class Share:
                 acs_ei.append(ac_ei.flatten()[0])
                 acs_lcb.append(ac_lcb.flatten()[0])
 
-            # 提案された特徴量を Pandas データフレームとして出力
+            # 将结果输出为 Pandas 数据框
             result_df = pd.DataFrame(self.df_without_energy)
             result_df = result_df.assign(mean=means, std=stds, EI=acs_ei, LCB=acs_lcb)
 
@@ -90,20 +118,33 @@ class Share:
                 len(self.df_with_energy)
                 > self.INIT_NUM + self.BO_NUM - self.num_candidates
             ):
+                # 计算还需要的任务数量
                 shortage_num = self.INIT_NUM + self.BO_NUM - len(self.df_with_energy)
             else:
                 shortage_num = self.num_candidates
-            # 候補の ID を出力
+
+            # 根据 LCB 值排序并选择候选
             result_df_sort = result_df.sort_values("LCB", ascending=True)
-            self.log_message(f"Sorted result: {result_df_sort.head(shortage_num*2)}")
+            self.log_message(f"排序结果: {result_df_sort.head(shortage_num*2)}")
 
             candidates = result_df_sort.head(shortage_num).index
-            # print("\n".join(map(str, candidates)))
-            self.log_message("Python script finished")
+            self.log_message("Python 脚本运行完成")
             calc_dir = "/BO"
             return list(candidates), calc_dir
 
 
 def make_candidates(all_env, df_with_energy, df_without_energy):
+    """
+    调用 Share 类的实例生成候选任务。
+
+    参数：
+        - all_env: dict，包含环境变量（目录、任务数量等）。
+        - df_with_energy: DataFrame，已完成任务的数据。
+        - df_without_energy: DataFrame，未完成任务的数据。
+
+    返回：
+        - candidates: list，候选任务的 ID 列表。
+        - calc_dir: str，计算任务的目录路径。
+    """
     share_instance = Share(all_env, df_with_energy, df_without_energy)
     return share_instance.main()
