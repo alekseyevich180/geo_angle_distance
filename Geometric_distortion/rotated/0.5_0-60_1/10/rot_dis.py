@@ -2,9 +2,35 @@ import os
 import glob
 import math
 import numpy as np
-from atom_location import parse_poscar
-from atom_location import calculate_distance
-from utils import calculate_plane_normal
+
+def parse_poscar(poscar_path):
+    """
+    解析POSCAR/vasp文件，将每个原子类型与其坐标对应起来。
+    返回格式: [(atom_type, [x, y, z]), ...], lines(文件全部行), atom_types, atom_counts, coordinate_start_line
+    """
+    with open(poscar_path, 'r') as file:
+        lines = file.readlines()
+
+    atom_types = lines[5].split()
+    atom_counts = list(map(int, lines[6].split()))
+    coordinate_start_line = 8
+
+    # 判断是否存在Selective Dynamics行
+    if lines[7].strip().lower() in ["selective dynamics", "s"]:
+        coordinate_start_line += 1
+
+    total_atoms = sum(atom_counts)
+    coordinates_lines = lines[coordinate_start_line : coordinate_start_line + total_atoms]
+    coordinates = [line.split()[:3] for line in coordinates_lines]
+
+    atoms_coordinates = []
+    current_index = 0
+    for atom_type, count in zip(atom_types, atom_counts):
+        for _ in range(count):
+            atoms_coordinates.append((atom_type, list(map(float, coordinates[current_index]))))
+            current_index += 1
+
+    return atoms_coordinates, lines, atom_types, atom_counts, coordinate_start_line
 
 
 def rotation_matrix(axis, theta):
@@ -24,7 +50,7 @@ def rotation_matrix(axis, theta):
 
 if __name__ == "__main__":
     folder_path = "."
-    file_pattern = os.path.join(folder_path, "IrO6.vasp")
+    file_pattern = os.path.join(folder_path, "IrO6_reordered.vasp")
     files = glob.glob(file_pattern)
     
     #if not files:
@@ -60,23 +86,19 @@ if __name__ == "__main__":
     if Ir is None:
         raise ValueError("未找到Ir原子。")
 
-    try:
-        atom_M = int(input("Metal : "))
-        atom_O = int(input("Oxygen : "))
-        atom1 = atoms_coordinates[atom_M]  # 1号原子（下标从0开始）
-        atom5 = atoms_coordinates[atom_O]  # 5号原子
-        distance = calculate_distance(atom1, atom5)
-        #print(f"1号原子 {atom1[0]} 与 5号原子 {atom5[0]} 之间的距离为: {distance:.4f} Å")
-    except IndexError:
-        print("文件中的原子数量不足，无法计算1号与5号原子之间的距离。")
-
     # 使用前4个O定义平面，并选取第5个O为目标旋转原子
     O1, O2, O3, O4 = O_list[0], O_list[1], O_list[2], O_list[3]
     O_target = O_list[4]
 
     # 定义平面法向量
-    scale_factor = float(input("-100 to 100:"))
-    normal = calculate_plane_normal(O1, O2, O3, scale_factor=scale_factor) #通过修改这里的值调节角度
+    v1 = O2 - 1.5*O1
+    v2 = O3 - O1
+    #alpha = 0.5
+    #offset = alpha * v2
+    #modified_v1 = v1 + offset
+    #modified_v1 = modified_v1 / np.linalg.norm(modified_v1)
+    normal = np.cross(v1, v2)
+    normal = normal / np.linalg.norm(normal)  # 归一化
 
     # O_target相对于Ir的向量和初始距离
     OM = O_target - Ir
@@ -86,10 +108,10 @@ if __name__ == "__main__":
     o_start_line = coordinate_start_line + ir_count
     # 第5个O对应行号：o_start_line + 4（下标从0开始）
     target_line_index = o_start_line + 4
-    final_distance = distance  # 目标缩短后的O-Ir距离
+    final_distance = 0.10022821737536475  # 目标缩短后的O-Ir距离
 
     # 对0到60度，每度一次旋转，并输出文件
-    for angle in range(0, 20, 1):
+    for angle in range(0, 61, 1):
         theta = math.radians(angle)
         R = rotation_matrix(normal, theta)
         OM_rotated = R.dot(OM)
