@@ -37,13 +37,16 @@ if __name__ == "__main__":
         print(f"找到 {len(files)} 个文件: {files}")
 
     poscar_file = files[0]
-
+    results = []
+    
     # 解析POSCAR文件
     atoms_coordinates, lines, atom_types, atom_counts, coordinate_start_line = parse_poscar(poscar_file)
 
     # 假设MO6结构：第一个原子类型为M(如Ru、Sn、Ti、Ir等)，第二个原子类型为O
     
     
+    M_type = atom_types[0]  # 金属原子类型
+    O_type = atom_types[1]  # 氧原子类型
     M_count = atom_counts[0]
     O_count = atom_counts[1] if len(atom_counts) > 1 else 0
 

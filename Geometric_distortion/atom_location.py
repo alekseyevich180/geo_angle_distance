@@ -40,8 +40,8 @@ def calculate_distance(atom1, atom2):
     返回:
         - distance: float，两个原子之间的距离。
     """
-    coord1 = atom1[1]
-    coord2 = atom2[1]
+    coord1 = atom1
+    coord2 = atom2
     distance = math.sqrt(sum((c1 - c2) ** 2 for c1, c2 in zip(coord1, coord2)))
     
     return distance    
