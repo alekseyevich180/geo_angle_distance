@@ -1,7 +1,6 @@
 import os
 import glob
 import math
-import re
 import numpy as np
 
 def parse_poscar(poscar_path):
@@ -55,13 +54,6 @@ def calculate_angle(metal, oxygen1, oxygen2):
     return angle
 
 
-def natural_sort_key(s):
-    """
-    提取文件名中的数字部分，用于自然排序。
-    """
-    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
-
-
 def process_folder(folder_path):
     """
     处理当前文件夹中的所有.vasp文件。
@@ -98,14 +90,14 @@ def process_folder(folder_path):
         oxygen6 = oxygen_atoms[5]  # 第6个氧原子
 
         angle = calculate_angle(metal, oxygen5, oxygen6)
-        results.append((poscar_file, angle, f"文件: {poscar_file},  {angle:.2f} \n"))
+        results.append((angle, f" {angle:.2f} , 文件: {poscar_file}, 金属: {M_type}, 氧: {O_type}\n"))
 
-    # 按文件名中的数字部分进行自然排序
-    results.sort(key=lambda x: natural_sort_key(x[0]))
+    # 按夹角大小从大到小排序结果
+    results.sort(key=lambda x: x[0], reverse=True)
 
     result_file = os.path.join(folder_path, "angle_results.txt")
     with open(result_file, "w", encoding="utf-8") as f:
-        for _, _, result in results:
+        for _, result in results:
             f.write(result)
 
     print(f"角度计算完成，结果已保存到 {result_file}")
