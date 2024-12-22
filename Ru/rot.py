@@ -2,19 +2,35 @@ import os
 import glob
 import math
 import numpy as np
-import sys
-current_path = os.path.dirname(os.path.abspath(__file__))  # 当前脚本路径
-module_path = r"C:\Users\wu\Desktop\python_geo\share"  # 根据实际路径调整
-sys.path.append(module_path)
-import glob
-import math
-import numpy as np
-from atom_location import parse_poscar
-from atom_location import calculate_distance
-from utils import calculate_plane_normal
-from atom_location import calculate_angle
-from reorder_atom import reorder_atoms
 
+def parse_poscar(poscar_path):
+    """
+    解析POSCAR/vasp文件，将每个原子类型与其坐标对应起来。
+    返回格式: [(atom_type, [x, y, z]), ...], lines(文件全部行), atom_types, atom_counts, coordinate_start_line
+    """
+    with open(poscar_path, 'r') as file:
+        lines = file.readlines()
+
+    atom_types = lines[5].split()
+    atom_counts = list(map(int, lines[6].split()))
+    coordinate_start_line = 8
+
+    # 判断是否存在Selective Dynamics行
+    if lines[7].strip().lower() in ["selective dynamics", "s"]:
+        coordinate_start_line += 1
+
+    total_atoms = sum(atom_counts)
+    coordinates_lines = lines[coordinate_start_line : coordinate_start_line + total_atoms]
+    coordinates = [line.split()[:3] for line in coordinates_lines]
+
+    atoms_coordinates = []
+    current_index = 0
+    for atom_type, count in zip(atom_types, atom_counts):
+        for _ in range(count):
+            atoms_coordinates.append((atom_type, list(map(float, coordinates[current_index]))))
+            current_index += 1
+
+    return atoms_coordinates, lines, atom_types, atom_counts, coordinate_start_line
 
 def rotation_matrix(axis, theta):
     """
@@ -34,25 +50,22 @@ def rotation_matrix(axis, theta):
 if __name__ == "__main__":
     folder_path = "."
     # 修改为您实际的POSCAR文件名，如 "RuO6.vasp" 或 "SnO6.vasp"。此处以RuO6.vasp为例：
-    file_pattern = os.path.join(folder_path, "IrO6.vasp")
+    file_pattern = os.path.join(folder_path, "RuO6.vasp")
     files = glob.glob(file_pattern)
     
     if not files:
-        print("未找到匹配的文件 SnO6.vasp，请修改文件名以匹配您需要处理的对象。")
+        print("未找到匹配的文件 RuO6.vasp，请修改文件名以匹配您需要处理的对象。")
         exit()
     else:
         print(f"找到 {len(files)} 个文件: {files}")
 
     poscar_file = files[0]
-    results = []
-    
+
     # 解析POSCAR文件
     atoms_coordinates, lines, atom_types, atom_counts, coordinate_start_line = parse_poscar(poscar_file)
 
     # 假设MO6结构：第一个原子类型为M(如Ru、Sn、Ti、Ir等)，第二个原子类型为O
-    
-    
-    M_type = atom_types[0]  # 金属原子类型
+    M_type = atom_types[0]  # 中心金属原子类型
     O_type = atom_types[1]  # 氧原子类型
     M_count = atom_counts[0]
     O_count = atom_counts[1] if len(atom_counts) > 1 else 0
@@ -62,16 +75,8 @@ if __name__ == "__main__":
     
     if O_count < 5:
         raise ValueError("氧原子数量不足（<5），无法定义平面和目标原子。")
-    
-    atom_M = int(input("Metal : "))  # 中心金属原子类型
-    atom_O1 = int(input("dis_Oxygen : "))
-    atom_O6 = int(input("angle_Oxygen1 : "))  # 氧原子类型
-    
-    M = np.array(atoms_coordinates[atom_M][1])  # 提取金属原子坐标
-    atom5 = np.array(atoms_coordinates[atom_O1][1])  # 提取距离计算的氧原子
-    O6 = np.array(atoms_coordinates[atom_O6][1])
+
     # 提取M和O坐标
-    
     M = None
     O_list = []
     for atom, coord in atoms_coordinates:
@@ -83,17 +88,19 @@ if __name__ == "__main__":
     if M is None:
         raise ValueError(f"未找到{M_type}原子。")
     
-    distance = calculate_distance(M, atom5)
-    #print(f"1号氧原子与中心{M_type}原子的距离为: {distance}")
+    distance = np.linalg.norm(O_list[0] - M)
+    print(f"1号氧原子与中心{M_type}原子的距离为: {distance}")
 
     # 使用前4个O定义平面，并选取第5个O为目标旋转原子
     O1, O2, O3, O4 = O_list[0], O_list[1], O_list[2], O_list[3]
     O_target = O_list[4]
 
     # 定义平面法向量
-    scale_factor = float(input("-100 to 100:"))
-    normal = calculate_plane_normal(O1, O2, O3, scale_factor=scale_factor)
-    
+    v1 = O2 - O1
+    v2 = O3 - O1
+    normal = np.cross(v1, v2)
+    normal = normal / np.linalg.norm(normal)  # 归一化
+
     # O_target相对于M的向量和初始距离
     OM = O_target - M
     initial_distance = np.linalg.norm(OM)
@@ -104,7 +111,7 @@ if __name__ == "__main__":
     target_line_index = o_start_line + 4
 
     # 请根据实际情况修改final_distance为所需的目标距离
-    final_distance = distance
+    final_distance = 0.09973632735523337
 
     # 对0到60度，每隔20度一次旋转，并输出文件
     for angle in range(0, 61, 1):
@@ -112,19 +119,6 @@ if __name__ == "__main__":
         R = rotation_matrix(normal, theta)
         OM_rotated = R.dot(OM)
         O_target_new = M + OM_rotated
-
-        magnitude1 = np.linalg.norm(normal)
-        magnitude2 = np.linalg.norm(OM_rotated)
-
-        if magnitude1 == 0 or magnitude2 == 0:
-            raise ValueError("输入向量的模不能为零。")
-
-        dot_product = np.dot(normal, OM_rotated)
-        cos_theta = np.clip(dot_product / (magnitude1 * magnitude2), -1.0, 1.0)
-        vector_angle = math.degrees(math.acos(cos_theta))
-    
-        surface_angle = 90 - vector_angle
-
 
         # 缩放使旋转后O-M距离为目标距离
         current_distance = np.linalg.norm(O_target_new - M)
@@ -147,13 +141,5 @@ if __name__ == "__main__":
 
         # 恢复原始行以便下个循环使用
         lines[target_line_index] = original_line
-
-
-        calculated_angle = calculate_angle(M, O6, O_target_final)
-        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度, surface_angle: {surface_angle:.2f}\n")
-
-    with open("calculation_results.txt", "w", encoding="utf-8") as result_file:
-        result_file.write(f"读取的文件: {poscar_file}\n")
-        result_file.writelines(results)
 
     print("已生成0-60度的旋转并缩短距离后的MO6坐标文件。")

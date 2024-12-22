@@ -2,13 +2,6 @@ import os
 import glob
 import math
 import numpy as np
-import sys
-current_path = os.path.dirname(os.path.abspath(__file__))  # 当前脚本路径
-module_path = r"C:\Users\wu\Desktop\python_geo\share"  # 根据实际路径调整
-sys.path.append(module_path)
-import glob
-import math
-import numpy as np
 from atom_location import parse_poscar
 from atom_location import calculate_distance
 from utils import calculate_plane_normal

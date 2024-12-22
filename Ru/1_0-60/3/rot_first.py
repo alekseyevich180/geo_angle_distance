@@ -2,13 +2,6 @@ import os
 import glob
 import math
 import numpy as np
-import sys
-current_path = os.path.dirname(os.path.abspath(__file__))  # 当前脚本路径
-module_path = r"C:\Users\wu\Desktop\python_geo\share"  # 根据实际路径调整
-sys.path.append(module_path)
-import glob
-import math
-import numpy as np
 from atom_location import parse_poscar
 from atom_location import calculate_distance
 from utils import calculate_plane_normal
@@ -34,7 +27,7 @@ def rotation_matrix(axis, theta):
 if __name__ == "__main__":
     folder_path = "."
     # 修改为您实际的POSCAR文件名，如 "RuO6.vasp" 或 "SnO6.vasp"。此处以RuO6.vasp为例：
-    file_pattern = os.path.join(folder_path, "IrO6.vasp")
+    file_pattern = os.path.join(folder_path, "RuO6.vasp")
     files = glob.glob(file_pattern)
     
     if not files:
