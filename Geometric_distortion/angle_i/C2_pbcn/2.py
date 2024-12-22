@@ -95,7 +95,7 @@ def process_files(folder_path):
             continue
 
         # 选择特定的金属原子作为中心（例如第16号）
-        central_metal_index = 16 - 1  # 替换为目标铱原子的索引
+        central_metal_index = 8 - 1  # 替换为目标铱原子的索引
         if central_metal_index >= len(metal_indices):
             print(f"文件 {poscar_file} 中不存在指定的中心金属原子索引 {central_metal_index + 1}，跳过。")
             continue
@@ -104,11 +104,11 @@ def process_files(folder_path):
         oxygens = [np.array(atoms_coordinates[i][1]) for i in oxygen_indices]
 
         # 计算平面法向量
-        O16, O24, O23, O15 = oxygens[15], oxygens[23], oxygens[22], oxygens[14]  # 替换为实际索引
+        O16, O24, O23, O15 = oxygens[1], oxygens[2], oxygens[6], oxygens[5]  # 替换为实际索引
         normal = calculate_plane_normal(O16, O24, O23)
 
         # 计算目标向量与平面法向量夹角
-        O6, O18 = oxygens[5], oxygens[17]  # 替换为实际索引
+        O6, O18 = oxygens[0], oxygens[4]  # 替换为实际索引
         v6 = O6 - metal
         v18 = O18 - metal
 
