@@ -81,21 +81,24 @@ def process_folder(folder_path):
         metal_atoms = [coord for atom, coord in atoms_coordinates if atom == M_type]
         oxygen_atoms = [coord for atom, coord in atoms_coordinates if atom == O_type]
 
-        if len(metal_atoms) == 0 or len(oxygen_atoms) < 2:
+        if len(metal_atoms) == 0 or len(oxygen_atoms) < 6:
             print(f"文件 {poscar_file} 的金属或氧原子数量不足，跳过。")
             continue
 
         metal = metal_atoms[0]  # 假设只有一个金属原子
-        #oxygen1, oxygen2 = oxygen_atoms[:2]  # 任选两个氧原子
         oxygen5 = oxygen_atoms[4]  # 第5个氧原子（索引从0开始）
         oxygen6 = oxygen_atoms[5]  # 第6个氧原子
 
         angle = calculate_angle(metal, oxygen5, oxygen6)
-        results.append(f" {angle:.2f} , 文件: {poscar_file}, 金属: {M_type}, 氧: {O_type}\n")
+        results.append((angle, f" {angle:.2f} , 文件: {poscar_file}, 金属: {M_type}, 氧: {O_type}\n"))
+
+    # 按夹角大小从大到小排序结果
+    results.sort(key=lambda x: x[0], reverse=True)
 
     result_file = os.path.join(folder_path, "angle_results.txt")
     with open(result_file, "w", encoding="utf-8") as f:
-        f.writelines(results)
+        for _, result in results:
+            f.write(result)
 
     print(f"角度计算完成，结果已保存到 {result_file}")
 

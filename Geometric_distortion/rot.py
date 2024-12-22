@@ -27,7 +27,7 @@ def rotation_matrix(axis, theta):
 if __name__ == "__main__":
     folder_path = "."
     # 修改为您实际的POSCAR文件名，如 "RuO6.vasp" 或 "SnO6.vasp"。此处以RuO6.vasp为例：
-    file_pattern = os.path.join(folder_path, "SnO6.vasp")
+    file_pattern = os.path.join(folder_path, "IrO6.vasp")
     files = glob.glob(file_pattern)
     
     if not files:
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     # 定义平面法向量
     scale_factor = float(input("-100 to 100:"))
     normal = calculate_plane_normal(O1, O2, O3, scale_factor=scale_factor)
-
+    
     # O_target相对于M的向量和初始距离
     OM = O_target - M
     initial_distance = np.linalg.norm(OM)
@@ -100,11 +100,24 @@ if __name__ == "__main__":
     final_distance = distance
 
     # 对0到60度，每隔20度一次旋转，并输出文件
-    for angle in range(0, 61, 20):
+    for angle in range(0, 61, 1):
         theta = math.radians(angle)
         R = rotation_matrix(normal, theta)
         OM_rotated = R.dot(OM)
         O_target_new = M + OM_rotated
+
+        magnitude1 = np.linalg.norm(normal)
+        magnitude2 = np.linalg.norm(OM_rotated)
+
+        if magnitude1 == 0 or magnitude2 == 0:
+            raise ValueError("输入向量的模不能为零。")
+
+        dot_product = np.dot(normal, OM_rotated)
+        cos_theta = np.clip(dot_product / (magnitude1 * magnitude2), -1.0, 1.0)
+        vector_angle = math.degrees(math.acos(cos_theta))
+    
+        surface_angle = 90 - vector_angle
+
 
         # 缩放使旋转后O-M距离为目标距离
         current_distance = np.linalg.norm(O_target_new - M)
@@ -130,7 +143,7 @@ if __name__ == "__main__":
 
 
         calculated_angle = calculate_angle(M, O6, O_target_final)
-        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度\n")
+        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度, surface_angle: {surface_angle:.2f}\n")
 
     with open("calculation_results.txt", "w", encoding="utf-8") as result_file:
         result_file.write(f"读取的文件: {poscar_file}\n")
