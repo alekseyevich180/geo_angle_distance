@@ -160,7 +160,7 @@ def process_files(folder_path):
     summary_file = os.path.join(folder_path, "summary_results.txt")
     with open(summary_file, "w", encoding="utf-8") as f:
         for poscar_file, surface_angle, angle in results:
-            f.write(f"文件: {poscar_file}, 平面夹角: {surface_angle:.2f} 度, 原子夹角: {angle:.2f} 度\n")
+            f.write(f"文件: {poscar_file}, 平面夹角:, {surface_angle:.2f} , 原子夹角: , {angle:.2f} \n")
 
     print(f"所有文件处理完成，结果已保存到 {summary_file}")
 
