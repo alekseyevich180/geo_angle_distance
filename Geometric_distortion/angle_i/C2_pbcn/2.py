@@ -104,8 +104,9 @@ def process_files(folder_path):
         oxygens = [np.array(atoms_coordinates[i][1]) for i in oxygen_indices]
 
         # 计算平面法向量
-        O16, O24, O23, O15 = oxygens[15], oxygens[22], oxygens[23], oxygens[14]  # 替换为实际索引
-        normal = calculate_plane_normal(O16, O24, O23)
+        
+        O22, O24 = oxygens[22], oxygens[23]  # 替换为实际索引
+        normal = calculate_plane_normal(O22, O24, metal)
 
         # 计算目标向量与平面法向量夹角
         O6, O18 = oxygens[5], oxygens[17]  # 替换为实际索引

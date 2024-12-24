@@ -1,1 +1,1 @@
-文件: C:\Users\wu\Desktop\python_geo\Geometric_distortion\angle_i\C2_pbcn\f.vasp, O6夹角: 113.64 度, O18夹角: 63.03 度
+文件: C:\Users\wu\Desktop\python_geo\Geometric_distortion\angle_i\C2_pbcn\f.vasp, O6夹角: 109.21 度, O18夹角: 60.13 度
