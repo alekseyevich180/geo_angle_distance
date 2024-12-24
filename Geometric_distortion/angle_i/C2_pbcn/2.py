@@ -102,7 +102,7 @@ def process_files(folder_path):
 
         metal = np.array(atoms_coordinates[metal_indices[central_metal_index]][1])
         oxygens = [np.array(atoms_coordinates[i][1]) for i in oxygen_indices]
-
+        metals = [np.array(atoms_coordinates[i][1]) for i in metal_indices]
         # 计算平面法向量
         
         O22, O24 = oxygens[22], oxygens[23]  # 替换为实际索引
