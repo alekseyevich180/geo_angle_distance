@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.gaussian_process import GaussianProcessRegressor
@@ -8,8 +7,6 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.gaussian_process.kernels import Matern, WhiteKernel
 from scipy.stats import zscore
 from sklearn.gaussian_process.kernels import Matern, WhiteKernel, DotProduct, ConstantKernel as C
-
-
 
 # 1. データを準備する
 # datファイルからデータを読み込む (第一列をx, 第三列をyとして使用)
@@ -22,9 +19,28 @@ bins = np.arange(np.floor(X.min()), np.ceil(X.max()) + 1, 1)  # 1区間ごとの
 bin_indices = np.digitize(X.ravel(), bins)  # 各点のビンを特定
 filtered_X = []
 filtered_y = []
-recommended_variance = 0.0005  # 推奨方差の値をやや緩和
+recommended_variance = 0.001  # 推奨方差の値をやや緩和
 
+for i in range(1, len(bins)):
+    bin_mask = bin_indices == i
+    bin_X = X[bin_mask]
+    bin_y = y[bin_mask]
+    
+    while np.var(bin_y) > recommended_variance and len(bin_y) > 4:  # 方差が大きい場合
+        print(f"Before filtering: Variance = {np.var(bin_y):.4f}, Points = {len(bin_y)}")
+        # 最も離れている複数の点を削除
+        mean_y = np.mean(bin_y)
+        distances = np.abs(bin_y - mean_y)
+        remove_indices = np.argsort(distances)[-5:]  # 上位5つの点を削除
+        bin_X = np.delete(bin_X, remove_indices, axis=0)
+        bin_y = np.delete(bin_y, remove_indices)
+        print(f"After filtering: Variance = {np.var(bin_y):.4f}, Points = {len(bin_y)}")
+    
+    filtered_X.extend(bin_X)
+    filtered_y.extend(bin_y)
 
+X = np.array(filtered_X).reshape(-1, 1)
+y = np.array(filtered_y)
 
 # 数据质量检查（剔除异常值）
 
@@ -46,13 +62,12 @@ kernel_rbf = C(1.0, (1e-3, 1e5)) * RBF(length_scale=10.0, length_scale_bounds=(1
 # Matern 核函数 (常用于非平滑问题)
 #kernel_matern = C(1.0, (1e-3, 1e5)) * Matern(length_scale=20.0, nu=1.5)
 #kernel_matern = C(1.0, (1e-3, 1e5)) * Matern(length_scale=10.0, length_scale_bounds=(1e-4, 1e3), nu=1.5)
-kernel_matern = C(1.0, (1e-3, 1e5)) * Matern(length_scale=10.0, nu=1.5) + WhiteKernel(noise_level=1e-2)
-
+kernel_matern = C(1.0, (1e-3, 1e5)) * Matern(length_scale=10.0, nu=1.5) + WhiteKernel(noise_level=1e-6, noise_level_bounds=(1e-6, 1e1))
 # 选择最优的核函数
 kernel = kernel_matern
 # 3. ガウス過程回帰モデルの作成
 #gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=15, alpha=1e-2)
-gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, alpha=1e-1)
+gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=15, alpha=1e-2)
 #gpr = GaussianProcessRegressor(kernel=kernel, optimizer="fmin_l_bfgs_b", max_iter_predict=1000, alpha=1e-2)
 
 # 4. 数据分割与交叉验证
@@ -88,7 +103,7 @@ plt.scatter(
     scaler_y.inverse_transform(y_scaled.reshape(-1, 1)),
     color='black', alpha=0.6, label='Filtered Data'
 )
-plt.plot(X_pred_original, y_pred_original, color='blue', label='Mean Prediction', linewidth=2)
+plt.plot(X_pred_original, y_pred_original, color='blue', label='Mean Prediction', linewidth=2,marker='x')
 plt.fill_between(
     X_pred_original.ravel(),
     y_pred_original - 1.96 * sigma_original,
