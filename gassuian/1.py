@@ -15,7 +15,7 @@ bins = np.arange(np.floor(X.min()), np.ceil(X.max()) + 1, 1)  # 1区間ごとの
 bin_indices = np.digitize(X.ravel(), bins)  # 各点のビンを特定
 filtered_X = []
 filtered_y = []
-recommended_variance = 0.005  # 推奨方差の値をやや緩和
+recommended_variance = 0.0005  # 推奨方差の値をやや緩和
 
 for i in range(1, len(bins)):
     bin_mask = bin_indices == i
@@ -67,7 +67,7 @@ plt.fill_between(X_pred.ravel(),
 plt.title('Gaussian Process Regression')
 plt.xlabel('Surface-IrO (°)')
 plt.ylabel('ICOHP (eV)')
-plt.ylim(-2, -1)  # 縦軸の範囲を制限
+plt.ylim(-2.6, -1.8)  # 縦軸の範囲を制限
 plt.grid(alpha=0.3)
 plt.legend()
 plt.tight_layout()

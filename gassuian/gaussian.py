@@ -67,7 +67,7 @@ plt.fill_between(X_pred.ravel(),
 plt.title('Gaussian Process Regression')
 plt.xlabel('X-axis')
 plt.ylabel('Y-axis')
-plt.ylim(-2, -1)  # 縦軸の範囲を制限
+plt.ylim(-3, -1.2)  # 縦軸の範囲を制限
 plt.grid(alpha=0.3)
 plt.legend()
 plt.tight_layout()
