@@ -136,6 +136,19 @@ if __name__ == "__main__":
         OM_rotated = R.dot(OM)
         O_target_new = M + OM_rotated
 
+        magnitude1 = np.linalg.norm(normal)
+        magnitude2 = np.linalg.norm(OM_rotated)
+
+        if magnitude1 == 0 or magnitude2 == 0:
+            raise ValueError("输入向量的模不能为零。")
+
+        dot_product = np.dot(normal, OM_rotated)
+        cos_theta = np.clip(dot_product / (magnitude1 * magnitude2), -1.0, 1.0)
+        vector_angle = math.degrees(math.acos(cos_theta))
+    
+        surface_angle = 90 - vector_angle
+
+
         # 缩放使旋转后O-M距离为目标距离
         current_distance = np.linalg.norm(O_target_new - M)
         scale_factor = final_distance / current_distance
@@ -160,7 +173,7 @@ if __name__ == "__main__":
 
 
         calculated_angle = calculate_angle(M, O6, O_target_final)
-        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度\n")
+        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度, surface_angle: {surface_angle:.2f}\n")
 
     with open("calculation_results.txt", "w", encoding="utf-8") as result_file:
         result_file.write(f"读取的文件: {poscar_file}\n")

@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     # 定义平面法向量
     scale_factor = float(input("-100 to 100:"))
-    normal = calculate_plane_normal(O1, O2, O3, scale_factor=scale_factor)
+    normal = calculate_plane_normal(O1, O2, M, scale_factor=scale_factor)
     
     # O_target相对于M的向量和初始距离
     OM = O_target - M
