@@ -176,10 +176,10 @@ if __name__ == "__main__":
 
 
         calculated_angle = calculate_angle(M, O6, O_target_final)
-        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度, surface_angle: {surface_angle:.2f}\n")
+        results.append(f"角度: {angle} , 计算的夹角:, {calculated_angle:.2f} , surface_angle:, {surface_angle:.2f}\n")
 
     with open("calculation_results.txt", "w", encoding="utf-8") as result_file:
-        result_file.write(f"读取的文件: {poscar_file}\n")
+        #result_file.write(f"读取的文件: {poscar_file}\n")
         result_file.writelines(results)
 
     print("已生成0-60度的旋转并缩短距离后的MO6坐标文件。")

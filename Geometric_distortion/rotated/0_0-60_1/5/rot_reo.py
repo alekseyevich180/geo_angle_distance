@@ -6,6 +6,9 @@ import sys
 current_path = os.path.dirname(os.path.abspath(__file__))  # 当前脚本路径
 module_path = r"C:\Users\wu\Desktop\python_geo\share"  # 根据实际路径调整
 sys.path.append(module_path)
+import glob
+import math
+import numpy as np
 from atom_location import parse_poscar
 from atom_location import calculate_distance
 from utils import calculate_plane_normal
@@ -115,7 +118,7 @@ if __name__ == "__main__":
 
     # 定义平面法向量
     scale_factor = float(input("-100 to 100:"))
-    normal = calculate_plane_normal(O1, O2, O3, scale_factor=scale_factor)
+    normal = calculate_plane_normal(O1, O2, M, scale_factor=scale_factor)
 
     # O_target相对于M的向量和初始距离
     OM = O_target - M
@@ -151,7 +154,7 @@ if __name__ == "__main__":
 
         # 缩放使旋转后O-M距离为目标距离
         current_distance = np.linalg.norm(O_target_new - M)
-        scale_factor = final_distance / current_distance
+        scale_factor = distance / current_distance
         O_target_final = M + OM_rotated * scale_factor
 
         # 修改目标行坐标至缩短后的坐标
@@ -173,10 +176,11 @@ if __name__ == "__main__":
 
 
         calculated_angle = calculate_angle(M, O6, O_target_final)
-        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度, surface_angle: {surface_angle:.2f}\n")
+        results.append(f"角度: {angle} 度, 计算的夹角:, {calculated_angle:.2f} 度, surface_angle:, {surface_angle:.2f}\n")
 
     with open("calculation_results.txt", "w", encoding="utf-8") as result_file:
-        result_file.write(f"读取的文件: {poscar_file}\n")
+        #result_file.write(f"读取的文件: {poscar_file}\n")
         result_file.writelines(results)
 
     print("已生成0-60度的旋转并缩短距离后的MO6坐标文件。")
+
