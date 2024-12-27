@@ -19,7 +19,7 @@ bins = np.arange(np.floor(X.min()), np.ceil(X.max()) + 1, 1)  # 1区間ごとの
 bin_indices = np.digitize(X.ravel(), bins)  # 各点のビンを特定
 filtered_X = []
 filtered_y = []
-recommended_variance = 0.00001  # 推奨方差の値をやや緩和
+recommended_variance = 0.01  # 推奨方差の値をやや緩和
 
 for i in range(1, len(bins)):
     bin_mask = bin_indices == i
