@@ -10,10 +10,37 @@ from sklearn.gaussian_process.kernels import Matern, WhiteKernel, DotProduct, Co
 
 # 1. データを準備する
 # datファイルからデータを読み込む (第一列をx, 第三列をyとして使用)
-data = np.loadtxt('ICOHP.dat')  # 同じフォルダにあるdatファイルを読み込む
+data = np.loadtxt('ICOHP_2.dat')  # 同じフォルダにあるdatファイルを読み込む
 X = data[:, 0].reshape(-1, 1)  # 第一列をXに
 y = data[:, 2]  # 第三列をyに
 
+# 1.1 各1区間内の方差をチェックして過大なデータを削除
+bins = np.arange(np.floor(X.min()), np.ceil(X.max()) + 1, 1)  # 1区間ごとのビン
+bin_indices = np.digitize(X.ravel(), bins)  # 各点のビンを特定
+filtered_X = []
+filtered_y = []
+recommended_variance = 0.01  # 推奨方差の値をやや緩和
+
+for i in range(1, len(bins)):
+    bin_mask = bin_indices == i
+    bin_X = X[bin_mask]
+    bin_y = y[bin_mask]
+    
+    while np.var(bin_y) > recommended_variance and len(bin_y) > 4:  # 方差が大きい場合
+        print(f"Before filtering: Variance = {np.var(bin_y):.4f}, Points = {len(bin_y)}")
+        # 最も離れている複数の点を削除
+        mean_y = np.mean(bin_y)
+        distances = np.abs(bin_y - mean_y)
+        remove_indices = np.argsort(distances)[-5:]  # 上位5つの点を削除
+        bin_X = np.delete(bin_X, remove_indices, axis=0)
+        bin_y = np.delete(bin_y, remove_indices)
+        print(f"After filtering: Variance = {np.var(bin_y):.4f}, Points = {len(bin_y)}")
+    
+    filtered_X.extend(bin_X)
+    filtered_y.extend(bin_y)
+
+X = np.array(filtered_X).reshape(-1, 1)
+y = np.array(filtered_y)
 # 数据质量检查（剔除异常值）
 
 y_zscores = zscore(y)
@@ -117,11 +144,3 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-residuals = scaler_y.inverse_transform(y_train.reshape(-1, 1)).ravel() - y_train_pred_original
-plt.figure(figsize=(8, 4))
-plt.scatter(scaler_X.inverse_transform(X_train), residuals, alpha=0.5)
-plt.axhline(0, color="red", linestyle="--", linewidth=1)
-plt.title("Residuals Distribution")
-plt.xlabel("X (Original Scale)")
-plt.ylabel("Residuals (eV)")
-plt.show()
