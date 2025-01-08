@@ -10,6 +10,8 @@
 #   universal: false
 
 -e file:.
+appnope==0.1.4
+    # via ipykernel
 asttokens==2.4.1
     # via python-geo
     # via stack-data
@@ -27,9 +29,7 @@ charset-normalizer==3.4.0
     # via python-geo
     # via requests
 colorama==0.4.6
-    # via ipython
     # via python-geo
-    # via tqdm
 comm==0.2.2
     # via ipykernel
     # via python-geo
@@ -90,7 +90,7 @@ kiwisolver==1.4.7
 latexcodec==3.0.0
     # via pybtex
     # via python-geo
-matplotlib==3.8.0
+matplotlib==3.10.0
     # via pymatgen
     # via python-geo
 matplotlib-inline==0.1.7
@@ -144,6 +144,8 @@ paramz==0.9.6
 parso==0.8.4
     # via jedi
     # via python-geo
+pexpect==4.9.0
+    # via ipython
 pillow==10.4.0
     # via matplotlib
     # via python-geo
@@ -159,6 +161,8 @@ prompt-toolkit==3.0.48
 psutil==6.0.0
     # via ipykernel
     # via python-geo
+ptyprocess==0.7.0
+    # via pexpect
 pure-eval==0.2.3
     # via python-geo
     # via stack-data
@@ -189,9 +193,6 @@ python-dotenv==1.0.1
 pytz==2024.2
     # via pandas
     # via python-geo
-pywin32==307
-    # via jupyter-core
-    # via python-geo
 pyyaml==6.0.2
     # via pybtex
     # via python-geo
@@ -218,6 +219,8 @@ scipy==1.12.0
     # via pymatgen
     # via python-geo
     # via scikit-learn
+scripts==3.0
+    # via python-geo
 setuptools==75.1.0
     # via python-geo
 six==1.16.0
@@ -233,6 +236,8 @@ spglib==2.5.0
 stack-data==0.6.3
     # via ipython
     # via python-geo
+stua==0.3
+    # via scripts
 sympy==1.13.3
     # via pymatgen
     # via python-geo
