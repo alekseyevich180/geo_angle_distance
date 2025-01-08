@@ -3,12 +3,9 @@ import glob
 import math
 import numpy as np
 import sys
-current_path = os.path.dirname(os.path.abspath(__file__))  # 当前脚本路径
-module_path = r"C:\Users\wu\Desktop\python_geo\share"  # 根据实际路径调整
+current_path = os.path.dirname(os.path.abspath(__file__))  
+module_path = r"C:\Users\wu\Desktop\python_geo\share"  
 sys.path.append(module_path)
-import glob
-import math
-import numpy as np
 from atom_location import parse_poscar
 from atom_location import calculate_distance
 from utils import calculate_plane_normal
@@ -17,10 +14,7 @@ from reorder_atom import reorder_atoms
 
 
 def rotation_matrix(axis, theta):
-    """
-    给定旋转轴(axis)和旋转角度theta(弧度)，返回绕该轴旋转theta的旋转矩阵(Rodrigues公式)。
-    axis应为归一化后的向量。
-    """
+    
     axis = axis / np.linalg.norm(axis)
     a = math.cos(theta/2.0)
     b, c, d = -axis * math.sin(theta/2.0)
@@ -84,7 +78,7 @@ if __name__ == "__main__":
         raise ValueError(f"未找到{M_type}原子。")
     
     distance = calculate_distance(M, atom5)
-    #print(f"1号氧原子与中心{M_type}原子的距离为: {distance}")
+    print(f"1号氧原子与中心{M_type}原子的距离为: {distance}")
 
     # 使用前4个O定义平面，并选取第5个O为目标旋转原子
     O1, O2, O3, O4 = O_list[0], O_list[1], O_list[2], O_list[3]
@@ -92,7 +86,7 @@ if __name__ == "__main__":
 
     # 定义平面法向量
     scale_factor = float(input("-100 to 100:"))
-    normal = calculate_plane_normal(O1, O2, O3, scale_factor=scale_factor)
+    normal = calculate_plane_normal(O1, O2, M, scale_factor=scale_factor)
     
     # O_target相对于M的向量和初始距离
     OM = O_target - M
@@ -104,7 +98,7 @@ if __name__ == "__main__":
     target_line_index = o_start_line + 4
 
     # 请根据实际情况修改final_distance为所需的目标距离
-    final_distance = distance
+    
 
     # 对0到60度，每隔20度一次旋转，并输出文件
     for angle in range(0, 61, 1):
@@ -128,7 +122,7 @@ if __name__ == "__main__":
 
         # 缩放使旋转后O-M距离为目标距离
         current_distance = np.linalg.norm(O_target_new - M)
-        scale_factor = final_distance / current_distance
+        scale_factor = distance / current_distance
         O_target_final = M + OM_rotated * scale_factor
 
         # 修改目标行坐标至缩短后的坐标
@@ -150,10 +144,10 @@ if __name__ == "__main__":
 
 
         calculated_angle = calculate_angle(M, O6, O_target_final)
-        results.append(f"角度: {angle} 度, 计算的夹角: {calculated_angle:.2f} 度, surface_angle: {surface_angle:.2f}\n")
+        results.append(f"角度: {angle} 度, 计算的夹角: ,{calculated_angle:.2f} ,度, surface_angle:, {surface_angle:.2f}\n")
 
     with open("calculation_results.txt", "w", encoding="utf-8") as result_file:
-        result_file.write(f"读取的文件: {poscar_file}\n")
+        #result_file.write(f"读取的文件: {poscar_file}\n")
         result_file.writelines(results)
 
     print("已生成0-60度的旋转并缩短距离后的MO6坐标文件。")

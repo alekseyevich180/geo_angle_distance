@@ -28,11 +28,11 @@ def rotation_matrix(axis, theta):
 if __name__ == "__main__":
     folder_path = "."
     # 修改为您实际的POSCAR文件名，如 "RuO6.vasp" 或 "SnO6.vasp"。此处以RuO6.vasp为例：
-    file_pattern = os.path.join(folder_path, "IrO6.vasp")
+    file_pattern = os.path.join(folder_path, "TiO6.vasp")
     files = glob.glob(file_pattern)
     
     if not files:
-        print("未找到匹配的文件 SnO6.vasp，请修改文件名以匹配您需要处理的对象。")
+        print("未找到匹配的文件 TiO6.vasp，请修改文件名以匹配您需要处理的对象。")
         exit()
     else:
         print(f"找到 {len(files)} 个文件: {files}")
