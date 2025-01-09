@@ -10,7 +10,7 @@ from sklearn.gaussian_process.kernels import Matern, WhiteKernel, DotProduct, Co
 
 # 1. データを準備する
 # datファイルからデータを読み込む (第一列をx, 第三列をyとして使用)
-data = np.loadtxt('ICOHP_0_dif_direction.dat')  # 同じフォルダにあるdatファイルを読み込む
+data = np.loadtxt('ICOHP.dat')  # 同じフォルダにあるdatファイルを読み込む
 X = data[:, 0].reshape(-1, 1)  # 第一列をXに
 y = data[:, 2]  # 第三列をyに
 
@@ -69,7 +69,7 @@ print("y_pred_original shape:", y_pred_original.shape)
 print("sigma_original shape:", sigma_original.shape)
 
 # 可视化
-plt.figure(figsize=(8, 4))
+plt.figure(figsize=(8, 6))
 plt.scatter(
     scaler_X.inverse_transform(X_scaled),
     scaler_y.inverse_transform(y_scaled.reshape(-1, 1)),
@@ -82,8 +82,6 @@ plt.fill_between(
     y_pred_original + 1.96 * sigma_original,
     color='lightblue', alpha=0.5, label='Confidence Interval'
 )
-#plt.figure(figsize=(10, 5))
-#plt.figure(figsize=(8, 4))
 plt.title('Gaussian Process Regression (Optimized)')
 plt.xlabel('O-Ir-O (°)')
 plt.ylabel('ICOHP (eV)')
