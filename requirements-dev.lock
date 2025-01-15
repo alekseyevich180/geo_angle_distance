@@ -10,8 +10,6 @@
 #   universal: false
 
 -e file:.
-appnope==0.1.4
-    # via ipykernel
 asttokens==2.4.1
     # via python-geo
     # via stack-data
@@ -29,7 +27,9 @@ charset-normalizer==3.4.0
     # via python-geo
     # via requests
 colorama==0.4.6
+    # via ipython
     # via python-geo
+    # via tqdm
 comm==0.2.2
     # via ipykernel
     # via python-geo
@@ -144,8 +144,6 @@ paramz==0.9.6
 parso==0.8.4
     # via jedi
     # via python-geo
-pexpect==4.9.0
-    # via ipython
 pillow==10.4.0
     # via matplotlib
     # via python-geo
@@ -161,8 +159,6 @@ prompt-toolkit==3.0.48
 psutil==6.0.0
     # via ipykernel
     # via python-geo
-ptyprocess==0.7.0
-    # via pexpect
 pure-eval==0.2.3
     # via python-geo
     # via stack-data
@@ -193,6 +189,8 @@ python-dotenv==1.0.1
 pytz==2024.2
     # via pandas
     # via python-geo
+pywin32==308
+    # via jupyter-core
 pyyaml==6.0.2
     # via pybtex
     # via python-geo
