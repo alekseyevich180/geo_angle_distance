@@ -151,6 +151,7 @@ sigma_original = scaler_y.scale_ * sigma
 
 train_r2 = r2_score(y_train, gpr.predict(X_train))
 test_r2 = r2_score(y_test, gpr.predict(X_test))
+#90%： 1.645 95%：1.960 99%：2.58 99.9%：3.291
 
 plt.figure(figsize=(8, 6))
 plt.scatter(scaler_X.inverse_transform(X_scaled), scaler_y.inverse_transform(y_scaled.reshape(-1, 1)), color='black', alpha=0.6, label='Filtered Data',marker = 'x')
