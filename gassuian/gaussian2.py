@@ -42,7 +42,7 @@ def remove_outliers(X, y, method='zscore', z_threshold=2, iqr_multiplier=1, mad_
 # 1. データを准备する
 data = np.loadtxt('Ir.dat')
 X = data[:, 0].reshape(-1, 1)
-y = data[:, 2]
+y = -data[:, 2]
 
 # 比较三种异常值检测方法
 detection_methods = ['zscore', 'iqr', 'mad']
@@ -159,7 +159,7 @@ plt.plot(X_pred_original, y_pred_original, color='red', label='Mean Prediction',
 plt.fill_between(X_pred_original, y_pred_original - 3.29 * sigma_original, y_pred_original + 3.29 * sigma_original, color='lightblue', alpha=0.5, label='Confidence Interval')
 plt.title(f'Gaussian Process Regression \nTrain R²: {train_r2:.3f}, Test R²: {test_r2:.3f}',fontsize=16)
 plt.xlabel('O-Ir-O angle (°)',fontsize=12)
-plt.ylabel('IpCOHP (eV)',fontsize=12)
+plt.ylabel('-IpCOHP (eV)',fontsize=12)
 plt.legend(fontsize=12)
 plt.tight_layout()
 plt.show()
