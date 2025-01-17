@@ -139,6 +139,13 @@ X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_siz
 # 使用最佳核函数重新训练
 kernel = kernels[best_kernel]
 gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, alpha=1e-2, optimizer="fmin_l_bfgs_b")
+#'fmin_l_bfgs_b'	默认优化器，适合大多数场景，使用 L-BFGS-B 算法。处理边界约束问题表现良好。
+#'fmin_tnc'	基于牛顿共轭梯度法的优化器。适合较大的数据集，但对初值敏感。
+#'fmin_cg'	共轭梯度法优化器。适合大型优化问题，但对精度要求较高时可能表现不佳。
+#'fmin_powell'	基于 Powell 的方法，适合无梯度的优化问题，但速度较慢。
+#'fmin_bfgs'	传统的 BFGS 优化器，无边界限制。适合小型数据集的精确优化。
+#'fmin_ncg'	使用牛顿-共轭梯度法进行优化。对小型优化问题效果好，但需要计算二阶导数。
+#'trust-constr'	基于信任区域的优化器。适用于带有约束条件的优化问题。
 gpr.fit(X_train, y_train)
 
 # 可视化预测结果
