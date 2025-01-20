@@ -160,7 +160,7 @@ train_r2 = r2_score(y_train, gpr.predict(X_train))
 test_r2 = r2_score(y_test, gpr.predict(X_test))
 #90%： 1.645 95%：1.960 99%：2.58 99.9%：3.291
 
-plt.figure(figsize=(8, 6))
+plt.figure(figsize=(10, 4))
 plt.scatter(scaler_X.inverse_transform(X_scaled), scaler_y.inverse_transform(y_scaled.reshape(-1, 1)), color='black', alpha=0.6, label='Filtered Data',marker = 'x')
 plt.plot(X_pred_original, y_pred_original, color='red', label='Mean Prediction', linewidth=2)
 plt.fill_between(X_pred_original, y_pred_original - 3.29 * sigma_original, y_pred_original + 3.29 * sigma_original, color='lightblue', alpha=0.5, label='Confidence Interval')
