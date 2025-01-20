@@ -40,7 +40,7 @@ def remove_outliers(X, y, method='zscore', z_threshold=2, iqr_multiplier=1, mad_
     return X[mask], y[mask]
 
 # 1. データを准备する
-data = np.loadtxt('Ir.dat')
+data = np.loadtxt('Ir2.dat')
 X = data[:, 0].reshape(-1, 1)
 y = -data[:, 2]
 
