@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
@@ -47,17 +47,17 @@ y_scaled = scaler_y.fit_transform(y_filtered.reshape(-1, 1)).ravel()
 # 数据分割
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_size=0.2, random_state=42)
 
-# 随机森林回归模型
-forest = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
-forest.fit(X_train, y_train)
+# 决策树回归模型
+tree = DecisionTreeRegressor(max_depth=5, random_state=42)
+tree.fit(X_train, y_train)
 
 # 训练集和测试集 R² 分数
-train_r2 = r2_score(y_train, forest.predict(X_train))
-test_r2 = r2_score(y_test, forest.predict(X_test))
+train_r2 = r2_score(y_train, tree.predict(X_train))
+test_r2 = r2_score(y_test, tree.predict(X_test))
 
 # 预测结果
 X_pred = np.linspace(X_scaled.min(), X_scaled.max(), 1000).reshape(-1, 1)
-y_pred = forest.predict(X_pred)
+y_pred = tree.predict(X_pred)
 
 # 将预测结果转换回原始坐标
 X_pred_original = scaler_X.inverse_transform(X_pred).ravel()
@@ -68,7 +68,7 @@ plt.figure(figsize=(10, 4))
 plt.scatter(scaler_X.inverse_transform(X_scaled), scaler_y.inverse_transform(y_scaled.reshape(-1, 1)), 
             color='black', alpha=0.6, label='Filtered Data', marker='x')
 plt.plot(X_pred_original, y_pred_original, color='red', label='Mean Prediction', linewidth=2)
-plt.title(f'Random Forest Regression \nTrain R²: {train_r2:.3f}, Test R²: {test_r2:.3f}', fontsize=16)
+plt.title(f'Decision Tree Regression \nTrain R²: {train_r2:.3f}, Test R²: {test_r2:.3f}', fontsize=16)
 plt.xlabel('O-Ir-O angle (°)', fontsize=12)
 plt.ylabel('-IpCOHP (eV)', fontsize=12)
 plt.legend(fontsize=12, loc='lower right')
@@ -76,7 +76,7 @@ plt.tight_layout()
 plt.show()
 
 # 真值 vs 预测值 (训练集)
-y_train_pred_original = scaler_y.inverse_transform(forest.predict(X_train).reshape(-1, 1)).ravel()
+y_train_pred_original = scaler_y.inverse_transform(tree.predict(X_train).reshape(-1, 1)).ravel()
 
 plt.figure(figsize=(6, 6))
 plt.scatter(
@@ -101,8 +101,8 @@ plt.tight_layout()
 plt.show()
 
 # 计算残差并可视化分布
-y_train_pred = forest.predict(X_train)
-y_test_pred = forest.predict(X_test)
+y_train_pred = tree.predict(X_train)
+y_test_pred = tree.predict(X_test)
 residuals_train = y_train - y_train_pred
 residuals_test = y_test - y_test_pred
 

@@ -42,7 +42,7 @@ def remove_outliers(X, y, method='zscore', z_threshold=2, iqr_multiplier=1, mad_
 # 1. データを准备する
 data = np.loadtxt('Ir.dat')
 X = data[:, 0].reshape(-1, 1)
-y = -data[:, 2]
+y = -data[:, 1]
 
 # 比较三种异常值检测方法
 detection_methods = ['zscore', 'iqr', 'mad']
@@ -63,14 +63,20 @@ for method in detection_methods:
 
     # 核函数优化
     kernels = {
-        "RBF": C(1.0) * RBF(length_scale=10.0),
-        "RBF2" : C(1.5, (1e-1, 1e3)) * RBF(length_scale=10.0, length_scale_bounds=(1e-6, 1e3)),
-        "Matern": C(1.0) * Matern(length_scale=10.0, nu=1.5),
+        "RBF": C(1.0) * RBF(length_scale=5.0),
+        "RBF2" : C(1.5, (1e-1, 1e3)) * RBF(length_scale=2.0, length_scale_bounds=(1e-6, 1e6)),
+        "Matern": C(1.0) * Matern(length_scale=2.0, nu=1.5),
         "kernel_matern" : C(1.2, (1e-3, 1e4)) * Matern(length_scale=20.0, nu=1.5), 
-        "kernel_matern2" : C(1.0, (1e-1, 1e2)) * Matern(length_scale=10.0, length_scale_bounds=(1e-6, 1e3), nu=1.5),
+        "kernel_matern2" : C(1.0, (1e-1, 1e2)) * Matern(length_scale=10.0, length_scale_bounds=(1e-6, 1e3), nu=2.5),
         "Matern + WhiteKernel" : C(1.0, (1e-3, 1e5)) * Matern(length_scale=12.0, nu=1.5) + WhiteKernel(noise_level=1e-6, noise_level_bounds=(1e-6, 1e1)),
         "Matern + WhiteKernel2": C(1.0) * Matern(length_scale=10.0, nu=1.5) + WhiteKernel(noise_level=1e-6),
-        "kernel": C(1.0) * Matern(length_scale=1.0, length_scale_bounds=(1e-6, 1e2)) + WhiteKernel(noise_level=1e-6)
+        "kernel": C(1.0) * Matern(length_scale=1.0, length_scale_bounds=(1e-6, 1e2)) + WhiteKernel(noise_level=1e-6),
+        "Matern + WhiteKernel + RBF": C(1.0) * Matern(length_scale=2.0, nu=1.5) + WhiteKernel(noise_level=1e-6) + RBF(length_scale=1.0, length_scale_bounds=(1e-7, 1e3)),
+        #"kernel" : gp_kern.RBF(num) * gp_kern.Bias(num) + gp_kern.Linear(num) * gp_kern.Bias(num)
+        #model = GPy.models.GPRegression(X.values, y.values, kernel=kernel, normalizer=True)
+        #model.optimize()
+        "Matern + WhiteKernel + RBF2": C(1.5, (1e-2, 1e2)) * Matern(length_scale=1.0, nu=1.5, length_scale_bounds=(1e-3, 1e3)) + WhiteKernel(noise_level=1e-7, noise_level_bounds=(1e-8, 1e-1)) + C(1.0, (1e-3, 1e3)) * RBF(length_scale=0.5, length_scale_bounds=(1e-6, 1e4)),
+
     }
 
     method_results = []
@@ -127,6 +133,12 @@ for method, result in results.items():
 print(f"Best Method: {best_method}, Best Kernel: {best_kernel}, Best AIC: {best_aic:.3f}, Best Mean R²: {best_r2:.3f}")
 X_filtered, y_filtered = remove_outliers(X, y, method=best_method)
 
+def remove_outliers(X, y, method='zscore', z_threshold=2, iqr_multiplier=1, mad_threshold=2):
+    if method == 'zscore':
+        y_zscores = zscore(y)
+        mask = np.abs(y_zscores) < z_threshold
+
+
 # 数据标准化
 scaler_X = StandardScaler()
 scaler_y = StandardScaler()
@@ -138,7 +150,7 @@ X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_scaled, test_siz
 
 # 使用最佳核函数重新训练
 kernel = kernels[best_kernel]
-gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, alpha=1e-2, optimizer="fmin_l_bfgs_b")
+gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=100, alpha=1e-4, optimizer="fmin_l_bfgs_b")
 #'fmin_l_bfgs_b'	默认优化器，适合大多数场景，使用 L-BFGS-B 算法。处理边界约束问题表现良好。
 #'fmin_tnc'	基于牛顿共轭梯度法的优化器。适合较大的数据集，但对初值敏感。
 #'fmin_cg'	共轭梯度法优化器。适合大型优化问题，但对精度要求较高时可能表现不佳。
@@ -149,7 +161,11 @@ gpr = GaussianProcessRegressor(kernel=kernel, n_restarts_optimizer=20, alpha=1e-
 gpr.fit(X_train, y_train)
 
 # 可视化预测结果
-X_pred = np.linspace(X_scaled.min(), X_scaled.max(), 1000).reshape(-1, 1)
+#X_pred = np.linspace(X_scaled.min(), X_scaled.max(), 1000).reshape(-1, 1)
+X_pred = np.concatenate([
+    np.linspace(X_scaled.min(), X_scaled.max(), 800),
+    np.linspace(175, 180, 200)  # 增加边界点的密度
+]).reshape(-1, 1)
 y_pred, sigma = gpr.predict(X_pred, return_std=True)
 
 X_pred_original = scaler_X.inverse_transform(X_pred).ravel()
@@ -160,13 +176,15 @@ train_r2 = r2_score(y_train, gpr.predict(X_train))
 test_r2 = r2_score(y_test, gpr.predict(X_test))
 #90%： 1.645 95%：1.960 99%：2.58 99.9%：3.291
 
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(8, 6))
 plt.scatter(scaler_X.inverse_transform(X_scaled), scaler_y.inverse_transform(y_scaled.reshape(-1, 1)), color='black', alpha=0.6, label='Filtered Data',marker = 'x')
 plt.plot(X_pred_original, y_pred_original, color='red', label='Mean Prediction', linewidth=2)
-plt.fill_between(X_pred_original, y_pred_original - 3.29 * sigma_original, y_pred_original + 3.29 * sigma_original, color='lightblue', alpha=0.5, label='Confidence Interval')
+plt.fill_between(X_pred_original, y_pred_original - 1.64 * sigma_original, y_pred_original + 1.64 * sigma_original, color='lightblue', alpha=0.5, label='Confidence Interval')
 plt.title(f'Gaussian Process Regression \nTrain R²: {train_r2:.3f}, Test R²: {test_r2:.3f}',fontsize=16)
 plt.xlabel('O-Ir-O angle (°)',fontsize=12)
 plt.ylabel('-IpCOHP (eV)',fontsize=12)
+plt.ylim(4.48,4.60)
+plt.xlim(145,180)
 plt.legend(fontsize=12,loc='lower right')
 plt.tight_layout()
 plt.show()
