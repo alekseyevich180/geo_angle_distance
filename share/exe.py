@@ -11,5 +11,6 @@ WORK_DIR = os.getenv("WORK_DIR")
 JOB_USER = os.getenv("JOB_USER")
 INIT_NUM = os.getenv("INIT_NUM")
 BO_NUM = os.getenv("BO_NUM")
+atom_location = os.gentenv("atom_location")
 
 share.make_instance(LOCAL_DIR, REMOTE_DIR, WORK_DIR, JOB_USER, INIT_NUM, BO_NUM)
