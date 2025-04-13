@@ -183,7 +183,7 @@ plt.fill_between(X_pred_original, y_pred_original - 1.64 * sigma_original, y_pre
 plt.title(f'Gaussian Process Regression \nTrain R²: {train_r2:.3f}, Test R²: {test_r2:.3f}',fontsize=16)
 plt.xlabel('O-Ir-O angle (°)',fontsize=12)
 plt.ylabel('-IpCOHP (eV)',fontsize=12)
-plt.ylim(4.48,4.60)
+plt.ylim(4.3,4.60)
 plt.xlim(145,180)
 plt.legend(fontsize=12,loc='lower right')
 plt.tight_layout()

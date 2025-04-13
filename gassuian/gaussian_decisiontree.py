@@ -64,10 +64,10 @@ X_pred_original = scaler_X.inverse_transform(X_pred).ravel()
 y_pred_original = scaler_y.inverse_transform(y_pred.reshape(-1, 1)).ravel()
 
 # 可视化结果
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(4, 4))
 plt.scatter(scaler_X.inverse_transform(X_scaled), scaler_y.inverse_transform(y_scaled.reshape(-1, 1)), 
             color='black', alpha=0.6, label='Filtered Data', marker='x')
-plt.plot(X_pred_original, y_pred_original, color='red', label='Mean Prediction', linewidth=2)
+plt.plot(X_pred_original, y_pred_original, color='red',  linewidth=2) #label='Mean Prediction',
 plt.title(f'Decision Tree Regression \nTrain R²: {train_r2:.3f}, Test R²: {test_r2:.3f}', fontsize=16)
 plt.xlabel('O-Ir-O angle (°)', fontsize=12)
 plt.ylabel('-IpCOHP (eV)', fontsize=12)
